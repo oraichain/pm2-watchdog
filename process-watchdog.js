@@ -34,12 +34,12 @@ class ProcessWatchdog {
 
     this.outLog = {
       path: pm2Env.pm2_env.pm_out_log_path,
-      ind: fs.statSync(pm2Env.pm2_env.pm_out_log_path).size,
+      ind: fs.statSync(pm2Env.pm2_env.pm_out_log_path).size
     };
 
     this.errLog = {
       path: pm2Env.pm2_env.pm_err_log_path,
-      ind: fs.statSync(pm2Env.pm2_env.pm_err_log_path).size,
+      ind: fs.statSync(pm2Env.pm2_env.pm_err_log_path).size
     };
   }
 
@@ -91,11 +91,7 @@ class ProcessWatchdog {
           return reject(err);
         }
         if (processDescription.length !== 1) {
-          return reject(
-            new Error(
-              `Process ${this.name} - details receiving failed. Unexpected number of results (${processDescription.length})`
-            )
-          );
+          return reject(new Error(`Process ${this.name} - details receiving failed. Unexpected number of results (${processDescription.length})`));
         }
         resolve(processDescription[0]);
       });
@@ -113,15 +109,14 @@ class ProcessWatchdog {
     // Get uptime to count uptime
     this.getProcessDetails()
       .then(
-        /**@param {pm2.ProcessDescription} processDescription*/ processDescription => {
+        /**@param {pm2.ProcessDescription} processDescription*/ (processDescription) => {
           if (!this.isRunning) {
             return;
           }
 
           // Calculate time, when to execute the process check.
           const processUptime = new Date().getTime() - processDescription.pm2_env.created_at;
-          const minUptime =
-            typeof processDescription.pm2_env.min_uptime !== 'undefined' ? processDescription.pm2_env.min_uptime : 1000;
+          const minUptime = typeof processDescription.pm2_env.min_uptime !== 'undefined' ? processDescription.pm2_env.min_uptime : 1000;
           const executeWatchdogAfter = Math.max(minUptime - processUptime, this.options.checkingInterval, 1000);
           console.trace(`Process ${this.name} - next checking after ${(executeWatchdogAfter / 1000).toFixed(0)}s`);
 
@@ -140,12 +135,8 @@ class ProcessWatchdog {
 
             try {
               // pass outLog:start:stop errLog:start:stop to script
-              const ret = execFileSync('node', [
-                this.options.processScript,
-                `${this.outLog.path}:${this.outLog.ind}:${newOutLogInd}`,
-                `${this.errLog.path}:${this.errLog.ind}:${newErrLogInd}`,
-              ]);
-              console.info('return', ret.toString());
+              const ret = execFileSync('node', [this.options.processScript, `${this.outLog.path}:${this.outLog.ind}:${newOutLogInd}`, `${this.errLog.path}:${this.errLog.ind}:${newErrLogInd}`]);
+              // console.info('return', ret.toString());
               this.failsCountInRow = 0;
               console.debug(`Process ${this.name} - ok`);
             } catch (ex) {
@@ -161,12 +152,11 @@ class ProcessWatchdog {
               }
 
               const m = `Process ${this.name} - restarting because not ok`;
-              console.info(m);
               console.error(m);
 
               // Process restart
               return new Promise((resolve, reject) => {
-                pm2.restart(this.pm_id, err => {
+                pm2.restart(this.pm_id, (err) => {
                   if (err) {
                     console.error(`Process ${this.name} - restart failed. ${err.message || err}`);
                     reject(err);
@@ -185,7 +175,7 @@ class ProcessWatchdog {
           }, executeWatchdogAfter);
         }
       )
-      .catch(err => {
+      .catch((err) => {
         // Getting uptime failed.
         console.error(`Failed to receive of process details. ${err.message || err}`);
         if (!this.timeoutId) {
