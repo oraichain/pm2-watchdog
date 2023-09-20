@@ -1,0 +1,29 @@
+{
+  "name": "@oraichain/pm2-watchdog",
+  "version": "1.0.0",
+  "description": "Watches the processes's health.",
+  "dependencies": {
+    "console-stamp": "^3.1.2",
+    "pm2": "^5.3.0",
+    "pmx": "^1.6.7"
+  },
+  "files": [
+    "index.js",
+    "process-watchdog.js"
+  ],
+  "config": {
+    "debug": "info",
+    "checking_interval": 10000,
+    "fails_to_restart": 3
+  },
+  "apps": [
+    {
+      "script": "index.js",
+      "merge_logs": true,
+      "max_memory_restart": "200M"
+    }
+  ],
+  "author": "tu@orai.io",
+  "license": "MIT",
+  "devDependencies": {}
+}
